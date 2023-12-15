@@ -1,5 +1,6 @@
 package com.example.layeredarchitecture.controller;
 
+import com.example.layeredarchitecture.dao.ItemDAO;
 import com.example.layeredarchitecture.dao.ItemDAOImpl;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
@@ -40,7 +41,6 @@ public class ManageItemsFormController {
     public TextField txtUnitPrice;
     public JFXButton btnAddNewItem;
 
-    private ItemDAOImpl itemDAO;
 
     public void initialize() {
         tblItems.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
@@ -83,7 +83,7 @@ public class ManageItemsFormController {
                 tblItems.getItems().add(new ItemTM(rst.getString("code"), rst.getString("description"), rst.getBigDecimal("unitPrice"), rst.getInt("qtyOnHand")));
             }*/
 
-            ItemDAOImpl itemDAO = new ItemDAOImpl();
+            ItemDAO itemDAO = new ItemDAOImpl();
             ArrayList<ItemDTO> allItems = itemDAO.getAllItems();
 
             for(ItemDTO item : allItems){
@@ -141,7 +141,7 @@ public class ManageItemsFormController {
         /*Delete Item*/
         String code = tblItems.getSelectionModel().getSelectedItem().getCode();
         try {
-            if (!itemDAO.existItem(code)) {
+            if (!existItem(code)) {
                 new Alert(Alert.AlertType.ERROR, "There is no such item associated with the id " + code).show();
             }
             /*Connection connection = DBConnection.getDbConnection().getConnection();
@@ -149,7 +149,7 @@ public class ManageItemsFormController {
             pstm.setString(1, code);
             pstm.executeUpdate();*/
 
-            ItemDAOImpl itemDAO = new ItemDAOImpl();
+            ItemDAO itemDAO = new ItemDAOImpl();
             boolean isDeleted = itemDAO.deleteItem(code);
 
             if(isDeleted){
@@ -189,7 +189,7 @@ public class ManageItemsFormController {
 
         if (btnSave.getText().equalsIgnoreCase("save")) {
             try {
-                if (!itemDAO.existItem(code)) {
+                if (!existItem(code)) {
                     new Alert(Alert.AlertType.ERROR, code + " already exists").show();
                 }
                 //Save Item
@@ -201,7 +201,7 @@ public class ManageItemsFormController {
                 pstm.setInt(4, qtyOnHand);
                 pstm.executeUpdate();*/
 
-                ItemDAOImpl itemDAO = new ItemDAOImpl();
+                ItemDAO itemDAO = new ItemDAOImpl();
                 boolean isSaved = itemDAO.saveItem(new ItemDTO(code, description, unitPrice, qtyOnHand));
 
                 if(isSaved){
@@ -216,7 +216,7 @@ public class ManageItemsFormController {
         } else {
             try {
 
-                if (!itemDAO.existItem(code)) {
+                if (!existItem(code)) {
                     new Alert(Alert.AlertType.ERROR, "There is no such item associated with the id " + code).show();
                 }
                 /*Update Item*/
@@ -228,7 +228,7 @@ public class ManageItemsFormController {
                 pstm.setString(4, code);
                 pstm.executeUpdate();*/
 
-                ItemDAOImpl itemDAO = new ItemDAOImpl();
+                ItemDAO itemDAO = new ItemDAOImpl();
                 boolean isUpdated = itemDAO.updateItem(new ItemDTO(code, description, unitPrice, qtyOnHand));
 
                 if(isUpdated){
@@ -257,8 +257,10 @@ public class ManageItemsFormController {
         pstm.setString(1, code);
         return pstm.executeQuery().next();
     }*/
-
-
+    public boolean existItem(String code) throws SQLException, ClassNotFoundException {
+        ItemDAO itemDAO = new ItemDAOImpl();
+        return itemDAO.existItem(code);
+    }
     private String generateNewId() {
         try {
             /*Connection connection = DBConnection.getDbConnection().getConnection();
@@ -271,7 +273,7 @@ public class ManageItemsFormController {
                 return "I00-001";
             }*/
 
-            ItemDAOImpl itemDAO1 = new ItemDAOImpl();
+            ItemDAO itemDAO1 = new ItemDAOImpl();
             return itemDAO1.searchItem();
 
         } catch (SQLException e) {
