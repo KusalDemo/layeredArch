@@ -40,8 +40,8 @@ public class ManageItemsFormController {
     public TableView<ItemTM> tblItems;
     public TextField txtUnitPrice;
     public JFXButton btnAddNewItem;
-
-
+    //Property Injection
+    ItemDAO itemDAO = new ItemDAOImpl();
     public void initialize() {
         tblItems.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
         tblItems.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -83,7 +83,7 @@ public class ManageItemsFormController {
                 tblItems.getItems().add(new ItemTM(rst.getString("code"), rst.getString("description"), rst.getBigDecimal("unitPrice"), rst.getInt("qtyOnHand")));
             }*/
 
-            ItemDAO itemDAO = new ItemDAOImpl();
+
             ArrayList<ItemDTO> allItems = itemDAO.getAllItems();
 
             for(ItemDTO item : allItems){
@@ -149,7 +149,6 @@ public class ManageItemsFormController {
             pstm.setString(1, code);
             pstm.executeUpdate();*/
 
-            ItemDAO itemDAO = new ItemDAOImpl();
             boolean isDeleted = itemDAO.deleteItem(code);
 
             if(isDeleted){
@@ -201,7 +200,6 @@ public class ManageItemsFormController {
                 pstm.setInt(4, qtyOnHand);
                 pstm.executeUpdate();*/
 
-                ItemDAO itemDAO = new ItemDAOImpl();
                 boolean isSaved = itemDAO.saveItem(new ItemDTO(code, description, unitPrice, qtyOnHand));
 
                 if(isSaved){
@@ -228,7 +226,6 @@ public class ManageItemsFormController {
                 pstm.setString(4, code);
                 pstm.executeUpdate();*/
 
-                ItemDAO itemDAO = new ItemDAOImpl();
                 boolean isUpdated = itemDAO.updateItem(new ItemDTO(code, description, unitPrice, qtyOnHand));
 
                 if(isUpdated){
@@ -258,7 +255,6 @@ public class ManageItemsFormController {
         return pstm.executeQuery().next();
     }*/
     public boolean existItem(String code) throws SQLException, ClassNotFoundException {
-        ItemDAO itemDAO = new ItemDAOImpl();
         return itemDAO.existItem(code);
     }
     private String generateNewId() {
@@ -273,8 +269,7 @@ public class ManageItemsFormController {
                 return "I00-001";
             }*/
 
-            ItemDAO itemDAO1 = new ItemDAOImpl();
-            return itemDAO1.searchItem();
+            return itemDAO.searchItem();
 
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
