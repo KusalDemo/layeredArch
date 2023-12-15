@@ -3,10 +3,7 @@ package com.example.layeredarchitecture.dao;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class CustomerDAOImpl {
@@ -21,5 +18,45 @@ public class CustomerDAOImpl {
         }
         return getAllCustomers;
     }
+    
+    public static boolean saveCustomer(CustomerDTO customer) throws SQLException, ClassNotFoundException {
+        Connection connection = DBConnection.getDbConnection().getConnection();
+        PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer (id,name, address) VALUES (?,?,?)");
+        pstm.setString(1, customer.getId());
+        pstm.setString(2, customer.getName());
+        pstm.setString(3, customer.getAddress());
+        int isSaved = pstm.executeUpdate();
+        
+        if(isSaved > 0){
+            return true;
+        }
+        return false;
+    }
 
+    public static boolean updateCustomer(CustomerDTO customer) throws SQLException, ClassNotFoundException {
+        Connection connection = DBConnection.getDbConnection().getConnection();
+        PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?, address=? WHERE id=?");
+        pstm.setString(1, customer.getId());
+        pstm.setString(2, customer.getName());
+        pstm.setString(3, customer.getAddress());
+        int isUpadated = pstm.executeUpdate();
+
+        return isUpadated > 0;
+    }
+
+    public static boolean existCustomer(String id) throws SQLException, ClassNotFoundException {
+        Connection connection = DBConnection.getDbConnection().getConnection();
+        PreparedStatement pstm = connection.prepareStatement("SELECT id FROM Customer WHERE id=?");
+        pstm.setString(1, id);
+        return pstm.executeQuery().next();
+    }
+
+    public static boolean deleteCustomer(String id) throws SQLException, ClassNotFoundException {
+        Connection connection = DBConnection.getDbConnection().getConnection();
+        PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
+        pstm.setString(1, id);
+        int isDeleted = pstm.executeUpdate();
+
+        return isDeleted > 0;
+    }
 }
