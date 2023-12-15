@@ -1,5 +1,6 @@
 package com.example.layeredarchitecture.controller;
 
+import com.example.layeredarchitecture.dao.CustomerDAO;
 import com.example.layeredarchitecture.dao.CustomerDAOImpl;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
@@ -26,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.example.layeredarchitecture.dao.CustomerDAOImpl.existCustomer;
 
 
 public class ManageCustomersFormController {
@@ -71,7 +71,7 @@ public class ManageCustomersFormController {
         /*Get all customers*/
         try {
 
-            CustomerDAOImpl customerDAO = new CustomerDAOImpl();
+            CustomerDAO customerDAO = new CustomerDAOImpl();
             ArrayList<CustomerDTO> allCustomers = customerDAO.getAllCustomers();
 
             for(CustomerDTO customer : allCustomers){
@@ -154,7 +154,7 @@ public class ManageCustomersFormController {
                 pstm.setString(3, address);
                 pstm.executeUpdate();*/
                 CustomerDTO customerDTO = new CustomerDTO(id, name, address);
-                CustomerDAOImpl customerDAO = new CustomerDAOImpl();
+                CustomerDAO customerDAO = new CustomerDAOImpl();
                 boolean isSaved = customerDAO.saveCustomer(customerDTO);
 
                 if(isSaved){
@@ -182,7 +182,7 @@ public class ManageCustomersFormController {
                 pstm.executeUpdate();*/
 
                 CustomerDTO customerDTO = new CustomerDTO(id, name, address);
-                CustomerDAOImpl customerDAO = new CustomerDAOImpl();
+                CustomerDAO customerDAO = new CustomerDAOImpl();
                 boolean isUpdated = customerDAO.updateCustomer(customerDTO);
 
             } catch (SQLException e) {
@@ -221,7 +221,7 @@ public class ManageCustomersFormController {
             pstm.setString(1, id);
             pstm.executeUpdate();*/
 
-            CustomerDAOImpl customerDAO = new CustomerDAOImpl();
+            CustomerDAO customerDAO = new CustomerDAOImpl();
             boolean isDeleted = customerDAO.deleteCustomer(id);
 
             if(isDeleted){
@@ -249,7 +249,7 @@ public class ManageCustomersFormController {
                 return "C00-001";
             }*/
 
-            CustomerDAOImpl customerDAO = new CustomerDAOImpl();
+            CustomerDAO customerDAO = new CustomerDAOImpl();
             String newId = customerDAO.generateNewId();
             return newId;
 
@@ -269,7 +269,10 @@ public class ManageCustomersFormController {
         }
 
     }
-
+    public boolean existCustomer(String id) throws SQLException, ClassNotFoundException {
+        CustomerDAO customerDAO = new CustomerDAOImpl();
+        return customerDAO.existCustomer(id);
+    }
     private String getLastCustomerId() {
         List<CustomerTM> tempCustomersList = new ArrayList<>(tblCustomers.getItems());
         Collections.sort(tempCustomersList);
