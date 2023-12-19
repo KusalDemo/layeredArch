@@ -54,6 +54,7 @@ public class PlaceOrderFormController {
     CustomerDAO customerDAO= new CustomerDAOImpl();
     ItemDAO itemDAO = new ItemDAOImpl();
     OrderDAO orderDAO = new OrderDAOImpl();
+    OrderDetailDAO orderDetailDAO=new OrderDetailDAOImpl();
 
     public void initialize() throws SQLException, ClassNotFoundException {
 
@@ -311,7 +312,7 @@ public class PlaceOrderFormController {
     public void txtQty_OnAction(ActionEvent actionEvent) {
     }
 
-    public void btnPlaceOrder_OnAction(ActionEvent actionEvent) {
+    public void btnPlaceOrder_OnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         boolean b = saveOrder(orderId, LocalDate.now(), cmbCustomerId.getValue(),
                 tblOrderDetails.getItems().stream().map(tm -> new OrderDetailDTO(tm.getCode(), tm.getQty(), tm.getUnitPrice())).collect(Collectors.toList()));
 
@@ -330,39 +331,51 @@ public class PlaceOrderFormController {
         calculateTotal();
     }
 
-    public boolean saveOrder(String orderId, LocalDate orderDate, String customerId, List<OrderDetailDTO> orderDetails) {
+    public boolean saveOrder(String orderId, LocalDate orderDate, String customerId, List<OrderDetailDTO> orderDetails) throws SQLException, ClassNotFoundException {
         /*Transaction*/
         Connection connection = null;
         try {
             connection = DBConnection.getDbConnection().getConnection();
+            /*connection = DBConnection.getDbConnection().getConnection();
             PreparedStatement stm = connection.prepareStatement("SELECT oid FROM `Orders` WHERE oid=?");
             stm.setString(1, orderId);
+            */
             /*if order id already exist*/
+            /*
             if (stm.executeQuery().next()) {
 
+            }*/
+
+            boolean existOrder = orderDAO.isExistOrder(orderId);
+            if(existOrder){
+                return false;
             }
 
             connection.setAutoCommit(false);
-            stm = connection.prepareStatement("INSERT INTO `Orders` (oid, date, customerID) VALUES (?,?,?)");
+            /*stm = connection.prepareStatement("INSERT INTO `Orders` (oid, date, customerID) VALUES (?,?,?)");
             stm.setString(1, orderId);
             stm.setDate(2, Date.valueOf(orderDate));
-            stm.setString(3, customerId);
+            stm.setString(3, customerId);*/
 
-            if (stm.executeUpdate() != 1) {
+            boolean isSaved = orderDAO.saveOrder(orderId, orderDate.toString(), customerId);
+            if (!isSaved) {
                 connection.rollback();
                 connection.setAutoCommit(true);
                 return false;
             }
 
-            stm = connection.prepareStatement("INSERT INTO OrderDetails (oid, itemCode, unitPrice, qty) VALUES (?,?,?,?)");
+            /*stm = connection.prepareStatement("INSERT INTO OrderDetails (oid, itemCode, unitPrice, qty) VALUES (?,?,?,?)");
 
             for (OrderDetailDTO detail : orderDetails) {
                 stm.setString(1, orderId);
                 stm.setString(2, detail.getItemCode());
                 stm.setBigDecimal(3, detail.getUnitPrice());
-                stm.setInt(4, detail.getQty());
+                stm.setInt(4, detail.getQty());*/
+            for (OrderDetailDTO detail : orderDetails) {
 
-                if (stm.executeUpdate() != 1) {
+            boolean isOrderDetailsSaved = orderDetailDAO.saveOrderDetails(orderId,detail);
+
+            if (!isOrderDetailsSaved) {
                     connection.rollback();
                     connection.setAutoCommit(true);
                     return false;
@@ -372,18 +385,15 @@ public class PlaceOrderFormController {
                 ItemDTO item = findItem(detail.getItemCode());
                 item.setQtyOnHand(item.getQtyOnHand() - detail.getQty());
 
-                PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET description=?, unitPrice=?, qtyOnHand=? WHERE code=?");
-                pstm.setString(1, item.getDescription());
-                pstm.setBigDecimal(2, item.getUnitPrice());
-                pstm.setInt(3, item.getQtyOnHand());
-                pstm.setString(4, item.getCode());
+                boolean isUpdated = itemDAO.updateItem(item);
 
-                if (!(pstm.executeUpdate() > 0)) {
+                if (!isUpdated) {
                     connection.rollback();
                     connection.setAutoCommit(true);
                     return false;
                 }
             }
+
 
             connection.commit();
             connection.setAutoCommit(true);
