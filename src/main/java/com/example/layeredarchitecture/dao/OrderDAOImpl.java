@@ -16,11 +16,11 @@ public class OrderDAOImpl implements OrderDAO {
     }
     @Override
     public boolean isExistOrder(String oid) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
+        /*Connection connection = DBConnection.getDbConnection().getConnection();
         PreparedStatement stm = connection.prepareStatement("SELECT oid FROM `Orders` WHERE oid=?");
-        stm.setString(1, oid);
-
-        if (stm.executeQuery().next()) {
+        stm.setString(1, oid);*/
+        ResultSet stm = SQLUtil.execute("SELECT oid FROM `Orders` WHERE oid=?", oid);
+        if (stm.next()) {
             return true;
         }else{
             return false;
@@ -28,14 +28,15 @@ public class OrderDAOImpl implements OrderDAO {
     }
     @Override
     public boolean saveOrder(String oid,String date,String cid) throws SQLException, ClassNotFoundException {
-        Connection connection = DBConnection.getDbConnection().getConnection();
+        /*Connection connection = DBConnection.getDbConnection().getConnection();
         PreparedStatement pstm = connection.prepareStatement("INSERT INTO `Orders` (oid, date, customerID) VALUES (?,?,?)");
         pstm.setString(1, oid);
         pstm.setString(2, date);
         pstm.setString(3, cid);
         int isSaved = pstm.executeUpdate();
 
-        return isSaved > 0;
+        return isSaved > 0;*/
+        return SQLUtil.execute("INSERT INTO `Orders` (oid, date, customerID) VALUES (?,?,?)", oid, date, cid);
     }
 
 
