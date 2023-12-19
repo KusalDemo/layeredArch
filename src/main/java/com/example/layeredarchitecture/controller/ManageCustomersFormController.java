@@ -74,7 +74,7 @@ public class ManageCustomersFormController {
         try {
 
 
-            ArrayList<CustomerDTO> allCustomers = customerDAO.getAllCustomers();
+            ArrayList<CustomerDTO> allCustomers = customerDAO.getAll();
 
             for(CustomerDTO customer : allCustomers){
                 tblCustomers.getItems().add(new CustomerTM(customer.getId(), customer.getName(), customer.getAddress()));
@@ -156,7 +156,7 @@ public class ManageCustomersFormController {
                 pstm.setString(3, address);
                 pstm.executeUpdate();*/
                 CustomerDTO customerDTO = new CustomerDTO(id, name, address);
-                boolean isSaved = customerDAO.saveCustomer(customerDTO);
+                boolean isSaved = customerDAO.save(customerDTO);
 
                 if(isSaved){
                     tblCustomers.getItems().add(new CustomerTM(id, name, address));
@@ -183,7 +183,7 @@ public class ManageCustomersFormController {
                 pstm.executeUpdate();*/
 
                 CustomerDTO customerDTO = new CustomerDTO(id, name, address);
-                boolean isUpdated = customerDAO.updateCustomer(customerDTO);
+                boolean isUpdated = customerDAO.update(customerDTO);
 
             } catch (SQLException e) {
                 new Alert(Alert.AlertType.ERROR, "Failed to update the customer " + id + e.getMessage()).show();
@@ -221,7 +221,7 @@ public class ManageCustomersFormController {
             pstm.setString(1, id);
             pstm.executeUpdate();*/
 
-            boolean isDeleted = customerDAO.deleteCustomer(id);
+            boolean isDeleted = customerDAO.delete(id);
 
             if(isDeleted){
                 tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
@@ -268,7 +268,7 @@ public class ManageCustomersFormController {
 
     }
     public boolean existCustomer(String id) throws SQLException, ClassNotFoundException {
-        return customerDAO.existCustomer(id);
+        return customerDAO.exist(id);
     }
     private String getLastCustomerId() {
         List<CustomerTM> tempCustomersList = new ArrayList<>(tblCustomers.getItems());

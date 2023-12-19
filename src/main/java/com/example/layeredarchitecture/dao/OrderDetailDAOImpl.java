@@ -6,10 +6,11 @@ import com.example.layeredarchitecture.model.OrderDetailDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class OrderDetailDAOImpl implements OrderDetailDAO {
     @Override
-    public boolean saveOrderDetails(String oid, OrderDetailDTO orderDetailDTO) throws SQLException, ClassNotFoundException {
+    public boolean save(String oid, OrderDetailDTO orderDetailDTO) throws SQLException, ClassNotFoundException {
         /*Connection connection = DBConnection.getDbConnection().getConnection();
         PreparedStatement pstm = connection.prepareStatement("INSERT INTO `OrderDetails` (oid, itemCode, qty, unitPrice) VALUES (?,?,?,?)");
         pstm.setString(1, oid);
@@ -19,6 +20,41 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
         int isSaved = pstm.executeUpdate();
         return isSaved > 0;*/
         return SQLUtil.execute("INSERT INTO `OrderDetails` (oid, itemCode, qty, unitPrice) VALUES (?,?,?,?)", oid, orderDetailDTO.getItemCode(), orderDetailDTO.getQty(), orderDetailDTO.getUnitPrice());
+    }
+
+    @Override
+    public ArrayList<OrderDetailDTO> getAll() throws SQLException, ClassNotFoundException {
+        return null;
+    }
+
+    @Override
+    public boolean save(OrderDetailDTO dto) throws SQLException, ClassNotFoundException {
+        return false;
+    }
+
+    @Override
+    public boolean update(OrderDetailDTO dto) throws SQLException, ClassNotFoundException {
+        return false;
+    }
+
+    @Override
+    public boolean exist(String id) throws SQLException, ClassNotFoundException {
+        return false;
+    }
+
+    @Override
+    public boolean delete(String id) throws SQLException, ClassNotFoundException {
+        return false;
+    }
+
+    @Override
+    public String generateNewId() throws SQLException, ClassNotFoundException {
+        return null;
+    }
+
+    @Override
+    public OrderDetailDTO search(String id) throws SQLException, ClassNotFoundException {
+        return null;
     }
 
 }

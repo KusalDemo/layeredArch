@@ -84,7 +84,7 @@ public class ManageItemsFormController {
             }*/
 
 
-            ArrayList<ItemDTO> allItems = itemDAO.getAllItems();
+            ArrayList<ItemDTO> allItems = itemDAO.getAll();
 
             for(ItemDTO item : allItems){
                 tblItems.getItems().add(new ItemTM(item.getCode(), item.getDescription(), item.getUnitPrice(), item.getQtyOnHand()));
@@ -149,7 +149,7 @@ public class ManageItemsFormController {
             pstm.setString(1, code);
             pstm.executeUpdate();*/
 
-            boolean isDeleted = itemDAO.deleteItem(code);
+            boolean isDeleted = itemDAO.delete(code);
 
             if(isDeleted){
                 tblItems.getItems().remove(tblItems.getSelectionModel().getSelectedItem());
@@ -200,7 +200,7 @@ public class ManageItemsFormController {
                 pstm.setInt(4, qtyOnHand);
                 pstm.executeUpdate();*/
 
-                boolean isSaved = itemDAO.saveItem(new ItemDTO(code, description, unitPrice, qtyOnHand));
+                boolean isSaved = itemDAO.save(new ItemDTO(code, description, unitPrice, qtyOnHand));
 
                 if(isSaved){
                     tblItems.getItems().add(new ItemTM(code, description, unitPrice, qtyOnHand));
@@ -226,7 +226,7 @@ public class ManageItemsFormController {
                 pstm.setString(4, code);
                 pstm.executeUpdate();*/
 
-                boolean isUpdated = itemDAO.updateItem(new ItemDTO(code, description, unitPrice, qtyOnHand));
+                boolean isUpdated = itemDAO.update(new ItemDTO(code, description, unitPrice, qtyOnHand));
 
                 if(isUpdated){
                     ItemTM selectedItem = tblItems.getSelectionModel().getSelectedItem();
@@ -255,7 +255,7 @@ public class ManageItemsFormController {
         return pstm.executeQuery().next();
     }*/
     public boolean existItem(String code) throws SQLException, ClassNotFoundException {
-        return itemDAO.existItem(code);
+        return itemDAO.exist(code);
     }
     private String generateNewId() {
         try {
@@ -269,7 +269,7 @@ public class ManageItemsFormController {
                 return "I00-001";
             }*/
 
-            return itemDAO.searchItem();
+            return itemDAO.generateNewId();
 
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
