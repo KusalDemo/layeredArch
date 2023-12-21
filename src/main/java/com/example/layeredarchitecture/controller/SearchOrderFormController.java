@@ -6,15 +6,21 @@ import com.example.layeredarchitecture.dao.custom.impl.CustomerDAOImpl;
 import com.example.layeredarchitecture.dao.custom.impl.QueryDAOImpl;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.model.SearchDTO;
+import com.example.layeredarchitecture.model.SearchOrderDTO;
+import com.example.layeredarchitecture.view.tdm.SearchOrderTM;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -28,19 +34,31 @@ public class SearchOrderFormController {
     public AnchorPane root;
     public TextField txtCustomerName;
     public JFXComboBox cmbOrderId;
-    public TableView tblOrderDetails;
+    public TableView<SearchOrderTM> tblOrderDetails;
     public Label lblId;
     public Label lblDate;
     public TextField txtOrderDate;
     public JFXComboBox cmbCustomerId;
     public JFXComboBox cmbItemCode;
+    public TableColumn<?,?> colCode;
+    public TableColumn<?,?> colDescription;
+    public TableColumn<?,?> colQty;
+    public TableColumn<?,?> colUnitPrice;
+    public TableColumn<?,?> colTotal;
 
     QueryDAOImpl queryDAO = new QueryDAOImpl();
     CustomerDAO customerDAO = new CustomerDAOImpl();
 
     public void initialize() throws SQLException, ClassNotFoundException {
-
         loadAllCustomerIds();
+
+    }
+    private void setCellValueFactory() {
+        colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        colQty.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand"));
+        colUnitPrice.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("total"));
     }
 
     public void navigateToHome(MouseEvent mouseEvent) throws IOException {
@@ -53,8 +71,22 @@ public class SearchOrderFormController {
         Platform.runLater(() -> primaryStage.sizeToScene());
     }
 
-    public void OrderIdOnAction(ActionEvent actionEvent) {
+    public void OrderIdOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        String selectedOrder = (String) cmbOrderId.getValue();
+        tblOrderDetails.getItems().clear();
 
+        ObservableList<SearchOrderTM> allOrderDetails = FXCollections.observableArrayList();
+        ArrayList<SearchOrderDTO> selectOrderDetails = queryDAO.getAllOrderDetails(selectedOrder);
+        for (SearchOrderDTO searchOrderDTO : selectOrderDetails) {
+            Double total = Double.parseDouble(searchOrderDTO.getQtyOnHand()) * Double.parseDouble(searchOrderDTO.getUnitPrice());
+            allOrderDetails.add(new SearchOrderTM(searchOrderDTO.getCode(), searchOrderDTO.getDescription(), searchOrderDTO.getQtyOnHand(), searchOrderDTO.getUnitPrice(),total));
+            lblDate.setText(searchOrderDTO.getDate());
+            lblId.setText(searchOrderDTO.getOrderId());
+            txtOrderDate.setText(searchOrderDTO.getDate());
+        }
+        tblOrderDetails.setItems(allOrderDetails);
+        setCellValueFactory();
+        tblOrderDetails.refresh();
     }
 
     public void cusIdOnAction(ActionEvent actionEvent) {
